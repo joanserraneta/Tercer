@@ -1,0 +1,4 @@
+self.re.findall(texto)
+
+[("hola ", ""), ("mundo", ","), ("hola", "!")]
+

@@ -19,6 +19,7 @@ public class ApuestaPrimitiva {
     // una combinacion de 6 numeros de La Primitiva
     private ListaConPI<NumeroPrimitiva> combinacion;
     
+    
     /**
      * Crea una ApuestaPrimitiva, o una combinacion de  
      * seis numeros aleatorios con valores distintos y   
@@ -29,6 +30,8 @@ public class ApuestaPrimitiva {
      *                 (true) o no (false).           
      */
     public ApuestaPrimitiva(boolean ordenada) {
+        int res = 0;
+        res = res + 1;
        if(ordenada){
             combinacion = new LEGListaConPIOrdenada<NumeroPrimitiva>();
        }else{

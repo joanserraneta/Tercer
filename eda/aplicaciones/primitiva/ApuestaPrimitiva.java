@@ -32,6 +32,7 @@ public class ApuestaPrimitiva {
     public ApuestaPrimitiva(boolean ordenada) {
         int res = 0;
         res = res + 1;
+        res = res +2;
        if(ordenada){
             combinacion = new LEGListaConPIOrdenada<NumeroPrimitiva>();
        }else{

@@ -9,6 +9,7 @@ public class LEGListaConPI<E> implements ListaConPI<E>{
     // PERO se incluye pensando en la futura reutilizacion del Modelo
     public LEGListaConPI(){
         pri = ult = pi_ant = new NodoLEG<E>(null);
+        talla = 0;
         }
     // Metodos Modificadores del estado de una Lista
     /** Inserta e en una Lista antes del Elemento que ocupa su PI, 
@@ -19,10 +20,10 @@ public class LEGListaConPI<E> implements ListaConPI<E>{
         nou.seg = pi_ant.seg;
         pi_ant.seg= nou;
         
-        if(pri==ult){
-            ult = ult.seg;
+        if(nou.seg == null){
+            ult = nou;
         }
-        //pri= nou;
+        
         talla++;
     }
    
@@ -68,5 +69,17 @@ public class LEGListaConPI<E> implements ListaConPI<E>{
     
     /** Devuelve la talla, o numero de elementos, de una Lista */
     public int talla(){return talla;}
+
+    public String toString(){
+        String res = "";
+        this.inicio();
+        for(int i= 0; i < this.talla; i++){
+            res += this.recuperar().toString() + " ";
+            this.siguiente();
+        }
+
+        return res;
+
+    }
     
 }

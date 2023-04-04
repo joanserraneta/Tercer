@@ -30,21 +30,34 @@ public class ApuestaPrimitiva {
      *                 (true) o no (false).           
      */
     public ApuestaPrimitiva(boolean ordenada) {
-        int res = 0;
-        res = res + 1;
-        res = res +2;
-       if(ordenada){
+        if(ordenada){
             combinacion = new LEGListaConPIOrdenada<NumeroPrimitiva>();
-       }else{
+        }else{
             combinacion= new LEGListaConPI<NumeroPrimitiva>();
         }
+        /**
+        NumeroPrimitiva num = new NumeroPrimitiva();
+        combinacion.insertar(num);
         while(combinacion.talla() < 6){
-            NumeroPrimitiva num = new NumeroPrimitiva();
+            num = new NumeroPrimitiva();
+            //System.out.println("numero posible:" + num);
+            //int pos = posicionDe(num);
+            //System.out.println(pos);
             
             if(posicionDe(num) == -1){
-                
+                //System.out.println("numero insertado:" + num);
                 combinacion.insertar(num);
+                
             }
+            //System.out.println(combinacion.talla());
+        }*/
+        
+        NumeroPrimitiva n;
+        for(int i =0; i< 6; i++){
+            n= new NumeroPrimitiva();
+            if(this.posicionDe(n) == -1){
+                combinacion.insertar(n);
+            } else i--;
         }
     }
     
@@ -60,15 +73,30 @@ public class ApuestaPrimitiva {
      *          o -1 en caso contrario
      */
     protected int posicionDe(NumeroPrimitiva n) {
+        int num = 0;
+        combinacion.inicio();
+
+        /**
+        while(!combinacion.esFin()){
+            if(combinacion.recuperar().compareTo(n) == 0){ 
+                return num;
+            }
+            num++;
+            combinacion.siguiente();
+        }
+
+        return -1;*/
         
         combinacion.inicio();
-        for(int i = 0; i < 6 && !combinacion.esFin(); i++){
-            if(combinacion.recuperar().compareTo(n) == 0){ 
-                
-                return i;
+        while(!combinacion.esFin()){
+            if(n.equals(combinacion.recuperar())){
+            break;
             }
+        num++;
+        combinacion.siguiente();
         }
-        return -1;
+        if(combinacion.esFin()) {num = -1;}
+        return num;
     }
     
     /**
@@ -78,21 +106,16 @@ public class ApuestaPrimitiva {
      * @return el String con la ApuestaPrimitiva en el formato texto dado. 
      */
     public String toString() {
-        String res = "(";
         combinacion.inicio();
-        String num = combinacion.recuperar().toString();
-        combinacion.siguiente();
-        res += num + ", ";
+        String res = "";      
+        
 
         while(!combinacion.esFin()){
             
-            num = combinacion.recuperar().toString();
+            res +=   combinacion.recuperar().toString() + ", ";
             combinacion.siguiente();
-            res += num + ", ";
-            
         }
-        res = res.substring(0, res.length()-2 );
-        res += ")";
+        res = res.substring(0, res.length()-2);
         return res;
     }
 }

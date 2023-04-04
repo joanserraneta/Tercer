@@ -80,11 +80,23 @@ public class Termino {
      *  cuando los valores Hash de uno y otro Termino son iguales
      */
     public boolean equals(Object otro) {
+        /**
         if(this.valorHash != ((Termino)otro).valorHash){
             return false;
         }
         return otro instanceof Termino &&
-        this.termino == ((Termino)otro).termino; 
+        this.termino.equals(((Termino)otro).termino); 
+        */
+        Termino aux = (Termino) otro;
+        if (this.valorHash == aux.valorHash){
+            return this.termino.equals(aux.termino);
+        }else{return false;}
+
+        /**
+         * if(otr instanceof Termino -66 ((Termino)otro).valorHash == this.valorHash{
+         *  return ((Termino)otro).termino.equals(this.termino)}
+         *  return false;
+         */
     }
     
     /** Devuelve un String que representa un Termino en cierto formato texto */

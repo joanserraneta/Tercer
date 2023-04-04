@@ -21,7 +21,7 @@ public class TestOrdenacion {
      * del metodo quickSort.
      */
     public static boolean comprobar() {
-        Integer[] a1 = crearAleatorioInteger(100000);
+        Integer[] a1 = crearAleatorioInteger(100);
         Integer[] a2 = Arrays.copyOf(a1, a1.length);
 
         // A completar por el alumno: 
@@ -33,15 +33,24 @@ public class TestOrdenacion {
         //return Ordenacion.sonIguales(a1,a2);
         // Ordenacion por Quick Sort de a1:
         //COMPLETAR
+        //System.out.println("Quicksort" + a2.toString());
+        //System.out.println("Mrgesort:" + a1.toString());
+
+
         Ordenacion.mergeSort2(a1);
         Ordenacion.quickSort(a2);
-        
-        return(Ordenacion.sonIguales(a1, a2));
+
+
+        //System.out.println("Quicksort" + a2.toString());
+        //System.out.println("Mrgesort:" + a1.toString());
+
+       
         // Ordenacion por Merge Sort (version 2) de a2:   
-        /** 
+        /**
         String res = "";
+
         String res2 = "";
-        for(int i = 0; i < a1.length; i++){
+        for(int i = 0; i < a1.length || i<a2.length; i++){
             res += a1[i] + " ";
             res2 += a2[i] + " ";
         }
@@ -49,9 +58,9 @@ public class TestOrdenacion {
         System.out.println();
         System.out.println(res2);
         */
-        
-		// Son iguales a1 (quickSort) y a2 (mergeSort2)?
-		// COMPLETAR return 
+        return(Ordenacion.sonIguales(a1, a2));
+        // Son iguales a1 (quickSort) y a2 (mergeSort2)?
+        // COMPLETAR return 
     }
 
     /**
@@ -132,23 +141,24 @@ public class TestOrdenacion {
         final int INC = INI;
         final int numRep = 200;
         final int charIgual = 50;
-        double t1, t2, tacum1, tacum2, tacum3;
-        String[] aux1, aux2, aux3;
+        double t1, t2, tacum1, tacum2, tacum3, tacum4;
+        String[] aux1, aux2, aux3, aux4;
         
-        System.out.println("#----------------------------------------------");        
+        System.out.println("#------------------------------------------------------");        
         System.out.println("# Comparacion entre quickSort y mergeSort: ");
         System.out.println("# Tiempos en milisegs para Strings - " + charIgual);
-        System.out.println("#----------------------------------------------");
-        System.out.println("#  Talla    mergeSort1   mergeSort2   quickSort");
-        System.out.println("#----------------------------------------------");
+        System.out.println("#------------------------------------------------------");
+        System.out.println("#  Talla    mergeSort1   mergeSort2   quickSort   sort");
+        System.out.println("#------------------------------------------------------");
         for (int k = INI; k <= FI; k = k + INC) {
             int talla = k;
             t1 = 0; t2 = 0; 
-            tacum1 = 0; tacum2 = 0; tacum3 = 0;
+            tacum1 = 0; tacum2 = 0; tacum3 = 0; tacum4 = 0;
             for (int i = 1; i <= numRep; i++) {
                 aux1 = crearAleatorioString(talla, charIgual);
                 aux2 = Arrays.copyOf(aux1, aux1.length);
                 aux3 = Arrays.copyOf(aux1, aux1.length);
+                aux4 = Arrays.copyOf(aux1, aux1.length);
                                              
                 t1 = System.nanoTime();
                 Ordenacion.mergeSort1(aux1);
@@ -165,15 +175,21 @@ public class TestOrdenacion {
                 t1 = System.nanoTime();
                 Ordenacion.quickSort(aux3);
                 t2 = System.nanoTime();
-                tacum3 += t2 - t1;                                                                                                      
+                tacum3 += t2 - t1;     
+                
+                t1 = System.nanoTime();
+                Arrays.sort(aux4);
+                t2 = System.nanoTime();
+                tacum4 += t2 - t1; 
             }
                       
             System.out.printf(Locale.US,
-                              "%1$8d %2$12.4f %3$12.4f %4$12.4f\n",
+                              "%1$8d %2$12.4f %3$12.4f %4$12.4f %5$12.4f\n",
                               talla, 
                               tacum1 / numRep / 1e6, 
                               tacum2 / numRep / 1e6,
-                              tacum3 / numRep / 1e6);
+                              tacum3 / numRep / 1e6,
+                              tacum4 / numRep / 1e6);
         }
     } 
     
@@ -187,7 +203,10 @@ public class TestOrdenacion {
      */    
     public static String[] crearAleatorioString(int talla, int n) {
         String [] res = new String[talla];
-
+        GeneradorDeString str = new GeneradorDeString(n);
+        for (int i = 0; i < res.length; i++) {
+            res[i] = str.generar();
+        }
         return res;
     }
     

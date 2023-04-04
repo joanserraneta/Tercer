@@ -1,56 +1,354 @@
 package librerias.estructurasDeDatos.deDispersion;
 
 import librerias.estructurasDeDatos.modelos.Map;
+import librerias.estructurasDeDatos.modelos.ListaConPI; 
+import librerias.estructurasDeDatos.lineales.LEGListaConPI;
 
-public class TablaHash<C, V> implements Map<C, V>{
+/**
+ * TablaHash: implementacion de una Tabla Hash Enlazada 
+ * en la que sus cubetas, o listas de colisiones, se
+ * representan mediante Listas con PI de EntradaHash<C, V>
+ * 
+ * @param <C>  tipo de las Claves del Map que implementa
+ * @param <V>  tipo de Valores del Map que implementa
+ * 
+ * @author (EDA-QA) 
+ * @version (Curso 2021-2022)
+ */
 
-    private EntradaHash<C, V> array[];
-    private int talla;
-     /** inserta la Entrada (c,v) en un Map y devuelve null; si ya
-     *  existe una Entrada de Clave c en el Map, devuelve su valor 
-     *  asociado y lo substituye por v (o actualiza la Entrada
+public class TablaHash<C, V> implements Map<C, V> {
+    
+    // Una Tabla Hash TIENE:
+    
+    // UNA CTE JAVA que representa...
+    /** El valor (float) del factor de carga estandar (por defecto) de una  
+     *  Tabla Hash, el mismo que se usa en la clase java.util.HashMap) */
+    public static final double FACTOR_DE_CARGA = 0.75;
+    
+    // UNA CTE JAVA que representa...
+    /** El valor (boolean) que indica si una Tabla Hash realiza 
+     *  Rehashing cuando su factor de carga supera FC_ESTANDAR
      */
+    public static final boolean REHASHING = true; // en Parte 1 vale false;
+    
+    // UN array de Listas Con PI de EntradaHash<C, V> elArray:
+    // - elArray[h] representa una cubeta, o lista de    
+    //   colisiones asociadas al indice Hash h
+    // - elArray[h] contiene la referencia a la Lista     
+    //   Con PI donde se encuentran todas las Entradas  
+    //   cuya Clave tiene un indice Hash h 
+    protected ListaConPI<EntradaHash<C, V>>[] elArray;
+    
+    // UNA talla que representa el numero de Entradas  
+    // almacenadas en una Tabla Hash o, equivalentemente, 
+    // en sus cubetas
+    protected int talla; 
+    
+    // UN numero de operaciones de Rehashing (int) efectuadas
+    // para mejorar el tiempo promedio que tardan en localizarse
+    // las claves de sus talla Entradas
+    private int numRH;
+    
+    
+    // UN metodo indiceHash que representa la funcion de 
+    // Dispersion de la Tabla
+    //**SIN ESTE METODO NO SE TIENE UNA TABLA HASH, SOLO UN ARRAY**
+    // Devuelve el indice Hash de la Clave c de una Entrada, 
+    // i.e. la posicion de la cubeta en la que la que se ubica  
+    // la Entrada de Clave c
+    protected int indiceHash(C c) {
+        int indiceHash = c.hashCode() % elArray.length;
+        if (indiceHash < 0) { indiceHash += elArray.length; }
+        return indiceHash;
+    }
+    
+    /** Crea una Tabla Hash vacia, con tallaMaximaEstimada  
+     *  Entradas y factor de carga 0.75 */
+    @SuppressWarnings("unchecked") 
+    public TablaHash(int tallaMaximaEstimada) {
+        int n = (int) (tallaMaximaEstimada / FACTOR_DE_CARGA);
+        int capacidad = siguientePrimo(n);
+        elArray = new LEGListaConPI[capacidad];
+        for (int i = 0; i < elArray.length; i++) {
+            elArray[i] = new LEGListaConPI<EntradaHash<C, V>>();
+        }
+        talla = 0;
+        numRH = 0;
+    }
+    // Devuelve un numero primo MAYOR o IGUAL a n, 
+    // i.e. el primo que sigue a n
+    public static final int siguientePrimo(int n) {
+        if (n % 2 == 0) n++;
+        for (; !esPrimo(n); n += 2); 
+        return n;
+    } 
+    // Comprueba si n es un numero primo
+    protected static final boolean esPrimo(int n) {
+        for (int i = 3; i * i <= n; i += 2) 
+            if (n % i == 0) return false; // n NO es primo
+        return true; // n SI es primo
+    }    
+    
+    /** Comprueba si una Tabla Hash esta vacia,  
+     *  i.e. si tiene 0 Entradas */
+    public boolean esVacio() { return talla == 0; }
+    
+    /** Devuelve la talla, o numero de Entradas, 
+      * de una Tabla Hash */
+    public int talla() { return talla; } 
+    
+    /** Devuelve el numero de operaciones de Rehashing que, 
+      *  en su caso, se hayan efectuado para crear una 
+      *  Tabla Hash */
+    public int numeroDeRH() { return numRH; } 
 
+    
+    private ListaConPI<EntradaHash<C, V>> localizar(C c) {
+        int pos = indiceHash(c);
+        ListaConPI<EntradaHash<C, V>> cubeta = elArray[pos];
+        for (cubeta.inicio(); 
+             !cubeta.esFin() && !cubeta.recuperar().clave.equals(c); 
+             cubeta.siguiente());
+        return cubeta;
+    }
+        
+    /** Devuelve el valor de la Entrada con Clave c de una 
+     *  Tabla Hash, o null si tal entrada no esta en la Tabla */
+    public V recuperar(C c) {
+        V valor = null;
+        // Busqueda en cubeta de la Entrada de clave c cuyo valor se quiere recuperar 
+        ListaConPI<EntradaHash<C, V>> cubeta = localizar(c);
+        // Resolucion de la Busqueda: SII esta la Entrada se recupera su valor
+        if (!cubeta.esFin()) { valor = cubeta.recuperar().valor; }
+        return valor;
+    }
+    
+    /** Elimina la Entrada con Clave c de una Tabla Hash y 
+     *  devuelve su valor asociado, o null si tal entrada 
+     *  no esta en la Tabla */
+    public V eliminar(C c) {
+        V valor = null;
+        // Busqueda en cubeta de la Entrada de clave c a eliminar
+        ListaConPI<EntradaHash<C, V>> cubeta = localizar(c);
+        // Resolucion de la Busqueda: 
+        // SII esta la Entrada se elimina, tras recuperar su valor
+        if (!cubeta.esFin()) {
+            valor = cubeta.recuperar().valor;
+            cubeta.eliminar();
+            talla--;
+        }
+        return valor;
+    }
+        
+    /** Inserta la Entrada (c, v) en una Tabla Hash y   
+     *  devuelve el antiguo valor asociado a c, o null 
+     *  si tal entrada no esta en la Tabla */
+    // Invoca al metodo rehashing() SII
+    // - El valor de la constante REHASHING es true
+    // AND
+    // - TRAS insertar una nueva Entrada en su  
+    //   correspondiente cubeta e incrementar la 
+    //   talla de la Tabla, factorCarga() > FACTOR_DE_CARGA
+    public V insertar(C c, V v) {
+        V antiguoValor = null;
+        // Busqueda en cubeta de la Entrada de clave c 
+        ListaConPI<EntradaHash<C, V>> cubeta = localizar(c);
+        // Resolucion de la busqueda: 
+        // si la Entrada (c, v) ya existe se actualiza su valor, y sino se inserta
+        if (cubeta.esFin()) { 
+            // si no esta, insercion efectiva de la Entrada (c, v)
+            cubeta.insertar(new EntradaHash<C, V>(c, v));
+            talla++;
+                       
+            if (factorCarga() > FACTOR_DE_CARGA && REHASHING) { 
+                numRH++;
+                rehashing(); 
+            }            
+        }
+        else { 
+            // si ya esta, actualizar (el valor de la) Entrada y retornar el antiguo
+            antiguoValor = cubeta.recuperar().valor;
+            cubeta.recuperar().valor = v; 
+        }
+        return antiguoValor;
+    }
+    
+    // Metodo que implementa el Rehashing. Por motivos obvios, NO se 
+    // debe re-inicializar el atributo numRH
+    // PERO... OJO!! Para tener en cuenta el coste de las operaciones de 
+    // rehashing en el tiempo que, en promedio, tarda en localizarse
+    // una de las talla Entradas de una Tabla, el atributo numColisiones
+    // TAMPOCO se debe re-inicializar en este metodo
+    //
     @SuppressWarnings("unchecked")
-    public void TablaHash(int capacidad){
-        capacidad = (int) (talla/0.75);
-        array = new EntradaHash[capacidad];
-        talla= 0;
-    }
+    protected final void rehashing() {
+        /**
+        ListaConPI<EntradaHash<C,V>> elArray_vell[] = elArray;
+        elArray = new LEGListaConPI[elArray.length * 2 ];
+        for(int i=0; i < elArray.length; i++) 
+        {
+            elArray[i] = new LEGListaConPI<EntradaHash<C,V>>();
 
-    public int indexHash(C c){
-        int res = c.hashCode() % array.length;
-        if(res < 0) res += array.length;
-        return res;
-    }
-
-    public V insertar(C c, V v){
-        if()
-        if(talla < array.length){
-            array[talla]= new EntradaHash<C, V>(c, v);
+        } 
+        talla=0;
+        
+        for(int c=0; c < elArray_vell.length; c++)
+        {
+            while(elArray_vell[c] != null && !elArray_vell[c].esFin()){
+                EntradaHash<C,V> elem = elArray_vell[c].recuperar();
+                insertar(elem.clave,elem.valor);
+                elArray_vell[c].siguiente(); 
+            } 
+            
+            
+            
+        } 
+        */
+        int newTalla = siguientePrimo(elArray.length * 2);
+        ListaConPI<EntradaHash<C, V>>[] res = new LEGListaConPI[newTalla];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = new LEGListaConPI<EntradaHash<C, V>>();
+        }
+        ListaConPI<EntradaHash<C, V>>[] aux = elArray;
+        elArray = res;
+        for(int i = 0; i < aux.length;i++){
+            ListaConPI<EntradaHash<C, V>> cubetaActual = aux[i];
+            for(cubetaActual.inicio();!cubetaActual.esFin();cubetaActual.siguiente()){
+                V valorActual = cubetaActual.recuperar().valor;
+                C claveActual = cubetaActual.recuperar().clave;
+                EntradaHash<C,V> cubetaNueva = new EntradaHash<C,V>(claveActual, valorActual);
+                elArray[indiceHash(claveActual)].insertar(cubetaNueva);
+            }
         }
         
     }
     
-    /** elimina la Entrada con Clave c de un Map y devuelve su 
-     *  valor asociado, null si no existe una Entrada con dicha clave
-     */
-    public V eliminar(C c){
-        if (c.inde)
+    /** Devuelve una ListaConPI con las talla() claves  
+     *  de una Tabla Hash */
+    public ListaConPI<C> claves() {
+        ListaConPI<C> l = new LEGListaConPI<C>();
+        for (int i = 0; i < elArray.length; i++) 
+            for (elArray[i].inicio(); !elArray[i].esFin(); elArray[i].siguiente()) 
+                 l.insertar( elArray[i].recuperar().clave); 
+        return l;
     }
     
-    /** devuelve el valor asociado a la clave c en un Map,
-     *  null si no existe una Entrada con dicha clave
+    /** Devuelve el factor de carga (real) de una Tabla Hash,   
+     *  lo que equivale a la longitud media de sus cubetas en  
+     *  una implemetacion Enlazada de la Tabla */
+    public final double factorCarga() { 
+        return (double) talla / elArray.length; 
+    }
+    
+    /** Devuelve un String con las Entradas de una Tabla Hash
+     *  en un formato texto dado (ver toString de EntradaHash)
      */
-    public V recuperar(C c);
+    // RECUERDA: usa la clase StringBuilder por eficiencia
+    public final String toString() {
+        StringBuilder res = new StringBuilder();
+        for (ListaConPI<EntradaHash<C, V>> cubeta : elArray) 
+            for (cubeta.inicio(); !cubeta.esFin(); cubeta.siguiente()) 
+                res.append(cubeta.recuperar() + "\n"); 
+        return res.toString(); 
+    }
     
-    /** comprueba si un Map esta vacio */
-    public boolean esVacio();
+    // Metodos para el analisis de la eficiencia de una 
+    // Tabla Hash Enlazada, NO de un Map!!
     
-    /** devuelve la talla, o numero de Entradas, de un Map */
-    public int talla();
+    /** Devuelve la desviacion tipica de las longitudes de las 
+     *  cubetas de una Tabla Hash Enlazada */
+    public final double desviacionTipica() {
+        
+        double desTipica = 0;
+        int cubetas = talla;
+        double longitudMedia = factorCarga();
+        int longCubeta = 0;
+        double res = 0;
+        for (int i = 0; i < elArray.length; i++) {
+            longCubeta = elArray[i].talla();
+            res += ((longCubeta - longitudMedia) * (longCubeta - longitudMedia));
+        }
+        desTipica = Math.sqrt(res / elArray.length);
+        return desTipica; // para que compile
+        
+        
+    }
     
-    /** devuelve una ListaConPI con las talla() Claves de un Map */
-    public ListaConPI<C> claves();
-}
+    /** Devuelve el coste promedio de localizar
+     *  una clave de una Tabla Hash Enlazada, 
+     *  calculado a partir del numero de 
+     *  colisiones que se producen al localizar 
+     *  sus talla claves
+     */
+    public final double costeMLocalizar() {
+        /* COMPLETAR */
+         //elArray[c].talla * (1 + elArray[c].talla)/2 
+         double res = 0;
+        for(int i = 0; i < elArray.length;i++){
+            res += ((elArray[i].talla() * (elArray[i].talla() - 1)/2));
+        }
+        return res / talla;
+       
+        
+    }
+
+    /** Devuelve un String con el histograma de ocupacion 
+     *  de una Tabla Hash Enlazada en formato texto. Asi, 
+     *  en cada una de sus lineas deben aparecer dos valores 
+     *  enteros separados por un tabulador: una longitud de 
+     *  cubeta (valor int en el intervalo [0, 9]) y un numero 
+     *  de cubetas. 
+     *  MUY IMPORTANTE: el numero de cubetas que aparece en
+     *  la linea i, ES: 
+     ** (a) Si i en [0, 8], el numero de cubetas de la Tabla  
+     **     que tienen una longitud i
+     ** (b) Si i = 9 (ultima linea), el numero de cubetas de 
+     **     la Tabla que tienen una longitud 9 o MAYOR
+     */      
+    public String histograma() {
+        String res = "";
+        int[] histo = new int[10];
+        for (int i = 0; i < elArray.length; i++) {
+            int longCubeta = elArray[i].talla();
+            if (longCubeta < 9) { histo[longCubeta]++; }
+            else { histo[9]++; }
+        }
+        for (int i = 0; i < histo.length; i++) {
+            res += i + "\t" + histo[i] + "\n";
+        }        
+        return res;        
+    }
+
+    public ListaConPI<V> listaValores (int n){
+        ListaConPI<V> res = new LEGListaConPI<>();
+        ListaConPI<EntradaHash<C,V>> listaC= new LEGListaConPI<>();
+        Map<V, Integer> mapa = new TablaHash<>(elArray.length);
+        for(int i = 0; i < elArray.length; i++){
+            listaC = elArray[i];
+            listaC.inicio();
+            while(!listaC.esFin()){
+                V valorLista = listaC.recuperar().valor;
+                if(mapa.recuperar(valorLista) != null){
+                    Integer val = (Integer)mapa.recuperar(valorLista);
+                    val = val + 1;
+                    
+                    mapa.insertar(valorLista, val);
+                }else{
+                    mapa.insertar(valorLista, 0);
+                }
+            }
+        }
+        /**for(int i=0; i< mapa.talla(); i++){
+
+            V v = (V) i;
+            if(mapa.recuperar(i) > n){
+                res.insertar(mapa.recuperar(i).valor);
+            }
+        }
+
+        */
+        return res;
+    }
+
+    
 }

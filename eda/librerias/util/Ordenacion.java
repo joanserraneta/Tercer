@@ -124,7 +124,9 @@ public class Ordenacion {
      * @param v  Sus elementos deben implementar la interfaz Comparable
      */
     public static <T extends Comparable<T>> void mergeSort2(T[] v) {
-        v = mergeSort2(v, 0, v.length-1);
+        T[] arrayOrd = mergeSort2(v, 0, v.length-1);
+        System.arraycopy(arrayOrd, 0, v, 0, v.length);
+        
     }
     
     /**
@@ -138,21 +140,22 @@ public class Ordenacion {
      */
     private static <T extends Comparable<T>> T[] mergeSort2(T[] v,
                                                              int i, int f) {
-        
         if(i == f){
             T[] aux = (T[]) new Comparable[1];
             aux[0] = v[i];
             return aux;
+
         }else if(i + 1 == f){
             T[] aux = (T[]) new Comparable[2];
-            if(v[0].compareTo(v[1]) < 0){
+            if(v[i].compareTo(v[f]) < 0){
                 aux[0] = v[i];
                 aux[1] = v[i+1];
                 return aux;
             }else{
                 aux[0] = v[i+1];
                 aux[1] = v[i];
-                return aux;}
+                return aux;
+            }
         }else{                                              
             int mitad = (i + f)/2;
             T[] r1 = mergeSort2(v, i, mitad);
@@ -170,7 +173,6 @@ public class Ordenacion {
      */
     @SuppressWarnings("unchecked")
     private static <T extends Comparable<T>> T[] merge2(T[] v1, T[] v2) {
-
         T[] aux = (T[]) new Comparable[v1.length + v2.length];
 
         int a = 0;
@@ -178,9 +180,14 @@ public class Ordenacion {
         int k = 0;
         
         while (a < v1.length && b < v2.length) {
-            if (v1[a].compareTo(v2[b]) < 0) { aux[k++] = v1[a++]; }
-            else                          { aux[k++] = v2[b++]; }
+            
+            if (v1[a].compareTo(v2[b]) < 0) { 
+                aux[k++] = v1[a++]; 
+            }else{ 
+                aux[k++] = v2[b++]; 
+            }
         }
+        
         while (a < v1.length) { aux[k++] = v1[a++]; }
         while (b < v2.length) { aux[k++] = v2[b++]; }
         return aux;
@@ -213,4 +220,84 @@ public class Ordenacion {
         } 
         System.out.println(res);
     }
+
+
+    /**
+     
+    public static <T extends Comparable<T>> void mergeSort2(T[] v) {
+        T[] arrayOrd = mergeSort2(v, 0, v.length-1);
+        System.arraycopy(arrayOrd, 0, v, 0, v.length);
+        
+    }
+
+    private static <T extends Comparable<T>> T[] mergeSort2(T[] v,
+                                                             int i, int f) {
+        if(i == f){
+            T[] aux = (T[]) new Comparable[1];
+            aux[0] = v[i];
+            return aux;
+
+        }else if(i + 1 == f){
+            T[] aux = (T[]) new Comparable[2];
+            if(v[i].compareTo(v[f]) < 0){
+                aux[0] = v[i];
+                aux[1] = v[i+1];
+                return aux;
+            }else if(v[i].compareTo(v[f]) == 0){
+                T[] auxRep = (T[])new Comparable[1];
+                auxRep[0] = v[i];
+                return aux;
+            }else{
+                aux[0] = v[i+1];
+                aux[1] = v[i];
+                return aux;
+            }
+        }else{                                              
+            int mitad = (i + f)/2;
+            T[] r1 = mergeSort2(v, i, mitad);
+            T[] r2 = mergeSort2(v, mitad + 1, f);
+            return merge2(r1, r2);
+        }      
+    }
+    
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Comparable<T>> T[] merge2(T[] v1, T[] v2) {
+        T[] aux = (T[]) new Comparable[v1.length + v2.length];
+
+        int a = 0;
+        int b = 0;
+        int k = 0;
+        
+        while (a < v1.length && b < v2.length) {
+            if(k>0){
+                if (v1[a].compareTo(v2[b]) < 0 && aux[k-1].compareTo(v1[a]) !=0) { 
+                    aux[k++] = v1[a++]; 
+                }
+                else if(v1[a].compareTo(v2[b]) == 0 && aux[k-1].compareTo(v1[a]) !=0){
+                    aux[k++]= v1[a++];
+                    b++;
+                }
+                else if (v1[a].compareTo(v2[b]) > 0 && aux[k-1].compareTo(v2[b]) !=0){ 
+                    aux[k++] = v2[b++]; 
+                }
+            }else{
+                if (v1[a].compareTo(v2[b]) < 0) { 
+                    aux[k++] = v1[a++]; 
+                }
+                else if(v1[a].compareTo(v2[b]) == 0){
+                    aux[k++]= v1[a++];
+                    b++;
+                }
+                else if (v1[a].compareTo(v2[b]) > 0){ 
+                    aux[k++] = v2[b++]; 
+                }
+            }
+        }
+        while (a < v1.length) { aux[k++] = v1[a++]; }
+        while (b < v2.length) { aux[k++] = v2[b++]; }
+        return aux;
+    }
+    
+     */
 }

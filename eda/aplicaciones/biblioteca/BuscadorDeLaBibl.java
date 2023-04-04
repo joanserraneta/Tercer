@@ -48,9 +48,12 @@ public class BuscadorDeLaBibl {
     // separadores de palabras que aparecen en los libros de listaLibros.    
     // Su valor por defecto es el que figura a continuacion, por lo que  
     // debe cambiarse si procede
-    protected static String separadores = 
-       "[[ ]*|[,]*|[\\.]*|[\t]*|[:]*|[;]*|[(]*|[)]*|[/]*|[!]*|[?]*|[¿]*|[“]*|[”]*|[+]*]+";
+    //protected static String separadores = 
+       //"[[ ]*|[,]*|[\\.]*|[\t]*|[:]*|[;]*|[(]*|[)]*|[/]*|[!]*|[?]*|[¿]*|[“]*|[�?]*|[+]*]+";
 
+    protected static String separadores = 
+                     "[[ ]*|[,]*|[\\.]*|[\t]*|[:]*|[;]*|[(]*|[)]*|[/]*|[!]*|[?]*|[�]*|[�]*|[�]*|[+]*]+";
+                     
     // UN int maxTerminos, el numero de terminos que, como maximo, contienen  
     // los libros de listaLibros. Su valor por defecto es el que figura a 
     // continuacion, por lo que debe cambiarse si procede
@@ -177,6 +180,8 @@ public class BuscadorDeLaBibl {
         else {
             res += "Encontradas " + valor.talla() + " apariciones de la palabra \"" + unaPalabra 
                    + "\" en...\n" + valor.toString(); 
+            //valor.toString();
+            
         }
         return res;
     }
@@ -200,7 +205,31 @@ public class BuscadorDeLaBibl {
      *  de la BD, o null si no existe ninguno.
      */
     public ListaConPI<Termino> hapax() {
-        /* COMPLETAR */
-        return /*CORREGIR*/ null;
+        ListaConPI<Termino> res = new LEGListaConPI<Termino>();
+        ListaConPI <Termino> aux = index.claves();
+        ListaConPI<BuscadorDeLaBibl.Posting> valor;
+        
+        for (aux.inicio(); !aux.esFin(); aux.siguiente()){
+            Termino t = aux.recuperar();
+            valor = index.recuperar(t);
+            if(valor.talla() == 1){
+                res.insertar(t);
+            }
+            
+        }
+        if(res.talla() == 0) {return null;}
+            else{ return res;}
+
+        
     }
+    
+    public ListaConPI<Termino> contenidoLinea(String titulo, int numLinea){
+        ListaConPI <Termino> res = new LEGListaConPI();
+        return res;
+    }
+    //public static void main(String [] args) throws FileNotFoundException{
+    //BuscadorDeLaBibl bib = new BuscadorDeLaBibl();
+    //String Titulo = ""
+    
+    
 }    

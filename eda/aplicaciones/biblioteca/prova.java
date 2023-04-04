@@ -41,7 +41,7 @@ public class prova {
                 System.out.println(res[i].equals(res[i+1]));
             }
         }
-        BuscadorDeLaBibl x = new BuscadorDeLaBibl();
+        //BuscadorDeLaBibl x = new BuscadorDeLaBibl();
         
 
     }

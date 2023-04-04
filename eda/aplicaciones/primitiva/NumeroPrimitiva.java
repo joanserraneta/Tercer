@@ -30,14 +30,12 @@ public class NumeroPrimitiva implements Comparable<NumeroPrimitiva> {
      * @return true si this y otro tienen el mismo valor 
      *              y false en caso contrario
      */
-    
-    /* COMPLETAR EL METODO equals */
-    public boolean equals(Object o){
-        if( o instanceof NumeroPrimitiva){
+     public boolean equals(Object o){
+        if(o instanceof NumeroPrimitiva){
             return this.numero == ((NumeroPrimitiva) o).numero;
         }
         return false;
-    }
+     }
     
     
     /**
@@ -51,7 +49,7 @@ public class NumeroPrimitiva implements Comparable<NumeroPrimitiva> {
     
     /* COMPLETAR EL METODO compareTo */
     public int compareTo(NumeroPrimitiva o){
-        return this.numero - ((NumeroPrimitiva) o).numero;
+        return this.numero - o.numero;
     }
     
     /**
@@ -63,6 +61,6 @@ public class NumeroPrimitiva implements Comparable<NumeroPrimitiva> {
     public String toString() {
         return Integer.toString(numero);
     }
-
     
+
 }

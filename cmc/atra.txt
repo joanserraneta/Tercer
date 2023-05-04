@@ -1,0 +1,75 @@
+ejer[G_] := 
+  Module[{M, T, P, S, M2, i, j, k, P2, num, Factor, parar, aux, 
+    cont},
+   M = G[[1]]; (*auxiliares*)
+   T = G[[2]]; (*terminales*)
+   P = G[[3]]; (*productos*)
+   S = G[[4]]; (*símbolo inicial*)
+   M2 = {}; (*nuevos auxiliares*)
+   P2 = {};  (*nuevo producto*)
+   num = 0;
+   parar = False;
+   cont = 1; 
+   Factor = {{}, T, {}, S};  (*gramática resultado*)
+   (*Factorizar todas las producciones*)
+   For[i = 1, i <= Length[P], i++,
+    For[j = 1, j <= Length[P[[i, 2]]], j++,  (*recorre productos*)
+      If[
+       Length[P[[i, 2, j]]] < 
+        2 , (*No modificar si solo hay un símbolo/ninguno*)
+       AppendTo[P2, {{P[[i, 1, 1]]}, {{P[[i, 2, j, 1]]}}}];
+       ]; (*If*)
+      (*hay >1 símbolo, factorizar*)
+      If [(MemberQ[M, P[[i, 2, j, 1]]] == True || 
+          MemberQ[M, P[[i, 2, j, 2]]] == True ) && 
+        Length[P[[i, 2, j]]] >= 2,  (*todos o casi todos son M, 
+       no hay nada que modificar*)
+       AppendTo[P2, {{P[[i, 1, 1]]}, {P[[i, 2, j]]}}];
+       , (*no es lineal*)
+       AppendTo[P2, {{P[[i, 1, 1]]}, {{P[[i, 2, j, 1]], num}}}];
+       For[k = 2, k <= Length[P[[i, 2, j]]] - 1 && ! parar, 
+        k++,  (*bucle que recorre el resto de símbolos, 
+        hasta llegar al último*)
+        If [
+          MemberQ[M, P[[i, 2, j, k + 1]]] == 
+           False, (*no hay auxiliares aún*)
+          AppendTo[P2, {{num}, {{P[[i, 2, j, k]], num + 1 }}}];
+          num = num + 1;
+          ,
+          parar = True; (*encuentras un auxiliar, 
+          ya no hace falta seguir factorizando*)
+          ];(*If*)
+        ]; (*For k*)
+       If [parar == True,
+        aux = P[[i, 2, j, k - 1 ;; Length[P[[i, 2, j]]]]];
+        AppendTo[P2, {{num}, {aux }}];
+        num = num + 1;
+        ,
+        AppendTo[
+         P2, {{num}, {{P[[i, 2, j, 
+             k]]}}}];  (*último símbolo del producto*)
+        num = num + 1;
+        ];
+       parar = False;
+       ]; (*If*)
+      ]; (*For j*)
+    ]; (*For i*)
+   
+   (*Juntar producciones con el mismo antecedente*)
+   For[i = 1, i <= Length[P2], i++,
+    For[j = i + 1, j <= Length[P2], j++,
+     If[P2[[i, 1]] == P2[[j, 1]],
+       AppendTo[P2[[i, 2]], 
+        P2[[j, 2, 1]]];  (*unes el producto al auxiliar*)
+       P2 = Delete[P2, j]; (*eliminas el producto repetido*)
+       j--;  (*ya que ahora el producto en la posición j es otro \
+nuevo*)
+       ]; (*If*)
+     ];(*For j*)
+    AppendTo[M2, P2[[i, 1, 1]]];  (*los nuevos auxiliares*)
+    ];(*For i*)
+   M2 = Union[M2]; (*elimina duplicados y los ordena*)
+   Factor[[1]] = M2;
+   Factor[[3]] = P2;
+   Return[Factor]
+   ];

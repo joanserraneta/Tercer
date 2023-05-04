@@ -1,0 +1,72 @@
+ejer4[G_] := 
+  Module[{N, T, P, S, eIni, pAux, cont, antecedente, consecuente, 
+    modCon, resultado, nRes},
+   N = G[[1]];
+   T = G[[2]];
+   P = G[[3]];
+   S = G[[4]];
+   pAux = {}; (*nuevas producciones*)
+   eIni = {};
+   cont = 0;
+   
+   nRes = {};
+   resultado = {{}, T, {}, S};
+   
+   For[i = 1, i <= Length[P], 
+    i++,(*este bucle irá seleccionando los distintos antecedentes que \
+tengan producciones*)
+    antecedente = P[[i, 1, 1]];
+    For[j = 1 , j <= Length[P[[i, 2]]], 
+     j++, (*en este bucle hacemos una iteracion para cada produccion \
+que pueda tener un antecedente*)
+     consecuente = P[[i, 2, j]];
+     modCon = {};
+     If[Length[consecuente < 2],
+      AppendTo[pAux, {{antecedente}, {{consecuente}}}];
+      ];
+      
+     If[(MemberQ[N, consecuente[[1]]] == True || 
+         MemberQ[N, consecuente[[2]]] == True ) && 
+       Length[consecuente] >= 2,
+      AppendTo[pAux, {{antecedente}, {{consecuente}}}];
+      ,
+      AppendTo[pAux, {{antecedente}, {{consecuente[[1]], cont}}}];
+      cont = cont + 1;
+      For[k = 2, k <=  Length[consecuente] - 1, k++,
+       
+       If[MemberQ[T, consecuente[[k]]] == True,
+         AppendTo[pAux, {{cont - 1}, {{consecuente[[k]], cont}}}];
+         cont = cont + 1;
+         
+         
+         ,
+         Break[];
+         ];
+       ];
+      If[k !=  Length[consecuente - 1],
+       modCon = pAux[[i, 2, j, k - 1 ;; Length[consecuente]]];
+       AppendTo[pAux, {{cont - 1}, {modCon}}];
+       cont = cont + 1;
+       
+       ,
+       AppendTo[pAux, {{cont - 1}, {{consecuente[[k]]}}}];
+       cont = cont + 1;
+       ];
+      ];
+     ];
+    ];
+   For[i = 1, i <= Length[pAux], i++,
+    For[j = i + 1, j <= Length[pAux], j++,
+     If[pAux[[i, 1]] == pAux[[j, 1]],
+       AppendTo[pAux[[i, 2]], pAux[[j, 2, 1]]];
+       pAux = Delete[pAux, j];
+       j--;
+       ];
+     ];(*for j*)
+    AppendTo[nRes, pAux[i, 1, 1]];
+    ];(*bucle i*)
+   nRes = Union[nRes];
+   resultado[[1]] = nRes;
+   resultado[[3]] = pAux;
+   Return[resultado];
+   ];
